@@ -220,79 +220,9 @@ struct CELL_FIX  {
 		return((el == p8->el) || (pl == p8->pl) || eb == p8->eb);
 	}
 	inline void GetRegions(int * tt) { tt[0] = el; tt[1] = plu; tt[2] = ebu; }
-	int GetTableRegions(USHORT * tt, CELL_FIX & cell2);
 };
 extern  CELL_FIX  cellsFixedData[81];
 
 extern T128 cell_z3x[81];
 extern int C_rbc27[81];
-/* COMBINE is a small module giving combination
-for a given size   (maths C n;p )
 
-the goal is to have a simpler code, not to improve the performance
-
-*/
-class COMBINE
-{
-public:
-	UINT inds[15],  // internal table size p
-		p,      // maxi 15
-		lim,    // set to p-1 final index at the end
-		n;      // numer of objects in the table
-	USHORT * entry, *output;
-	void Sort(); // internal function formating the output
-
-public:
-	void First(int ne, int pe, USHORT * d, USHORT * f); // initial
-	int Next(); // get next group of index
-};
-
-//========================== various old struct or UA collection
-
-struct TUA64 {// table outside the struct UA handling 
-	uint64_t * t, wt;
-	int nua, tsize;
-	inline void Init(uint64_t * e_t, int n) { t = e_t; tsize = n; nua = 0; }
-	void AddUA(int debug = 0);
-	void Print(int start = 0, int end = 0);
-	void Print(char * lib);
-};
-
-
-/* class VV9 is a small class
-extracting a row or a column   from a GG described puzzle
-
-to see later another use of VV9
-*/
-class VV9{
-public: char v[10];
-		VV9(){ v[9] = 0; };
-		//   void base(){for(USHORT i=0;i<9;i++)v[i]=(char)i;}
-		void row(char * puz, USHORT r){
-			for (USHORT i = 0, ii = 9 * r; i<9; i++)
-				v[i] = puz[ii++];
-		}
-		void col(char * puz, USHORT c) {
-			for (USHORT i = 0, ii = c; i<9; i++, ii += 9)
-				v[i] = puz[ii];
-		}
-
-};
-
-//================= symmetry of given 
-
-extern USHORT sh_36[36][2];
-extern USHORT sv_36[36][2];
-extern USHORT sd1_36[36][2];
-extern USHORT sd2_36[36][2];
-extern USHORT sst_36[36][2];
-extern USHORT sc_40[40][2];
-extern USHORT sr90_20[20][4];
-extern USHORT sym_81[5][81];
-extern USHORT sym_f9[3][9];
-extern USHORT  sym_tcor[3][9];
-
-// possible 2_templates 3_templates 4 templates 
-extern int floors_2d[36];
-extern int floors_3d[84];
-extern int floors_4d[126];
