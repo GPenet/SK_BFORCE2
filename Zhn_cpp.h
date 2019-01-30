@@ -25,17 +25,12 @@ struct ZH_1D_GLOBAL {
 
 struct ZH_1D {
 	BF128 FD;// last 32 bits contains unsolved rows
-	//int GetSols(int ru);
-	//int GetAllSols(BF128 & fde, int ru);
-	inline void Assign(int cell) {
-		FD &= AssignMask_Digit[cell];
-	}
+	inline void Assign(int cell) {		FD &= AssignMask_Digit[cell];	}
 	void Guess();
 	void GuessGo(int cell);
 	int Update();
 	int Assign_Update(BF128 in, BF128 & out, int cell);
 };
-
 ZH_1D_GLOBAL zh1d_g;
 ZH_1D zh1d[10];
 // _______here to try to optimize the cache the ZH_1D code
@@ -52,11 +47,6 @@ void ZH_1D::Guess() {// not yet solved
 	uint32_t rmask[3] = { 0777,0777000,0777000000 };
 	uint32_t ru = FD.bf.u32[3], bu = TblShrinkMask[ru],
 		minband = 30, minbandindex;
-	if (0) {
-		cout << "index=" << this - zh1d<< "nperms="<< zh1d_g.nsolw << endl;
-		cout << Char9out(ru) << " ru" << endl;
-		cout << Char9out(bu) << " bu" << endl;
-	}
 	// use the band with the lowed count
 	for (int ib = 0, bit = 1; ib < 3; ib++, bit <<= 1) {
 		if (bu&bit) {// not solved band
@@ -69,9 +59,6 @@ void ZH_1D::Guess() {// not yet solved
 		}
 	}
 
-	if (0) {
-		cout << "guess minbandindex=" << minbandindex << endl;
-	}
 	// now select the unsolved  row with the lowest count
 	uint32_t band = FD.bf.u32[minbandindex],
 		bru = (ru >> (3 * minbandindex)) & 7,
@@ -87,10 +74,6 @@ void ZH_1D::Guess() {// not yet solved
 				if (cc == 2) break;
 			}
 		}
-	}
-	if (0) {
-		cout << "guess rowindex=" << myirow << endl;
-		//return;
 	}
 	// try each candidate in the selected row
 	FD.bf.u32[3] ^= 1 << (3 * minbandindex + myirow);// set row solved
@@ -122,13 +105,8 @@ int ZH_1D::Assign_Update(BF128 in, BF128 & out, int cell) {
 	return ir;
 }
 int ZH_1D::Update() {
-	//char ws[82];
-	//cout << FD.String3X(ws) << " debut update" << endl;
 	register int Shrink, S, A, B, C, D, ru = FD.bf.u32[3],
 		rub = TblShrinkMask[ru];// rub 3 bits 0 to 111
-	if (0)cout << "update1d ru=0" << oct << ru
-		<< " rub" << rub << dec << endl;
-
 	switch (rub) {
 	case 1: {// band 1 alone not solved
 		A = FD.bf.u32[0];
@@ -253,8 +231,6 @@ int ZH_1D::Update() {
 		FD.bf.u32[0] = C = A;
 		ru = (ru & 0770) | S;
 	loop2:
-		//cout << "loop2" << endl;
-		//cout << FD.String3X(ws) << " après loop1" << endl;
 		A = FD.bf.u32[1];
 		Shrink = (TblShrinkMask[A & 0x1FF] |
 			TblShrinkMask[(A >> 9) & 0x1FF] << 3 |
@@ -287,8 +263,6 @@ int ZH_1D::Update() {
 	}
 	}// end switch
 	FD.bf.u32[3] = ru;
-	//cout << FD.String3X(ws) << " sortie update" << endl;
-	//if (1)cout << "exit update1d ru=0" << oct << ru	 << dec << endl;
 	return 0;
 }
 //============================= ZH_GLOBAL code and workinfg areas
@@ -387,10 +361,6 @@ void ZHOU::GuessGo(int dig, BF128& s) {
 	FD[6][0] -= assigned_cells;	FD[7][0] -= assigned_cells;
 	FD[8][0] -= assigned_cells;	cells_unsolved -= assigned_cells;
 	FD[dig][0] = s;// restore digit pm
-	if (0) {
-		cout << "GuessV3Go digit " << dig + 1 << endl;
-		//ImageCandidats();
-	}
 	ComputeNext();
 }
 void ZHOU::Guess() { 
@@ -569,7 +539,7 @@ B = FD[W][0].bf.u32[Z];\
 FD[W][0].bf.u32[Y] &= TblMaskSingle[S] & TblMaskDouble[S | ((B | (B >> 9) | (B >> 18)) & 0x1FF)];\
 S = TblRowUniq[TblShrinkSingle[Shrink] & TblColumnSingle[S]];
 
-#define UPD_ONE_DIGIT(W,V) if (cur_assigned > W+1)goto exit_digits;\
+#define UPD_ONE_DIGIT(W) if (cur_assigned > W+1)goto exit_digits;\
 	if (FD[W][0].bf.u64[0] != FD[W][1].bf.u64[0]\
 || FD[W][0].bf.u32[2] != FD[W][1].bf.u32[2]){\
 r_free = FD[W][0].bf.u32[3];\
@@ -582,18 +552,19 @@ r_free &= 077 | (S << 6);	UPD_AND_CL(W, 2)}\
 FD[W][0].bf.u32[3] = r_free;}
 
 int ZHOU::Update(){
-	//if (zh_g.diag)cout << "Update index=" << index << endl;
 	register uint32_t Shrink = 1, r_free, B, A, S, last_assigned = 0,cur_assigned;
 loop_upd:
-	//zh_g.cpt[3]++;
 	cur_assigned = last_assigned; last_assigned = 0;
-	UPD_ONE_DIGIT(8, 0377) UPD_ONE_DIGIT(7, 0577) UPD_ONE_DIGIT(6, 0677)
-	UPD_ONE_DIGIT(5, 0737) UPD_ONE_DIGIT(4, 0757) UPD_ONE_DIGIT(3, 0767)
-	UPD_ONE_DIGIT(2, 0773) UPD_ONE_DIGIT(1, 0775) UPD_ONE_DIGIT(0, 0776)
-	exit_digits:
-	//if (zh_g.diag>1){ cout << "avant test loop last_assigned=" << last_assigned << endl;
-	//Debug(1); ImageCandidats();
-	//}
+	if (FD[8][0].bf.u32[3]) { UPD_ONE_DIGIT(8) }
+	if (FD[7][0].bf.u32[3]) { UPD_ONE_DIGIT(7) }
+	if (FD[6][0].bf.u32[3]) { UPD_ONE_DIGIT(6) }
+	if (FD[5][0].bf.u32[3]) { UPD_ONE_DIGIT(5) }
+	if (FD[4][0].bf.u32[3]) { UPD_ONE_DIGIT(4) }
+	if (FD[3][0].bf.u32[3]) { UPD_ONE_DIGIT(3) }
+	if (FD[2][0].bf.u32[3]) { UPD_ONE_DIGIT(2) }
+	if (FD[1][0].bf.u32[3]) { UPD_ONE_DIGIT(1) }
+	if (FD[0][0].bf.u32[3]) { UPD_ONE_DIGIT(0) }
+exit_digits:
 	if (last_assigned) goto loop_upd;// nothing to do in the next cycle
 	return 1;
 }
