@@ -29,7 +29,6 @@ struct ZH_1D {
 	void Guess();
 	void GuessGo(int cell);
 	int Update();
-	int Assign_Update(BF128 in, BF128 & out, int cell);
 };
 ZH_1D_GLOBAL zh1d_g;
 ZH_1D zh1d[10];
@@ -88,22 +87,12 @@ void ZH_1D::Guess() {// not yet solved
 void ZH_1D::GuessGo(int cell) {
 	*this = *(this - 1);
 	FD &= AssignMask_Digit[cell];// unsolved row already updated
-	int ru = FD.bf.u32[3];
 	if (Update()) return; // locked
-	if (!(FD.bf.u32[3] = ru)) zh1d_g.Add(FD);
-	else {
-		//char ws[82];
-		//cout << FD.String3X(ws) << "after update before new guess" << endl;
-		Guess();
-	}
+	if (!FD.bf.u32[3]) zh1d_g.Add(FD);
+	else 		Guess();
+	
 }
-int ZH_1D::Assign_Update(BF128 in, BF128 & out, int cell) {
-	FD = in;
-	FD &= AssignMask_Digit[cell]; 
-	int ir = Update();
-	if (!ir) out = FD;
-	return ir;
-}
+
 int ZH_1D::Update() {
 	register int Shrink, S, A, B, C, D, ru = FD.bf.u32[3],
 		rub = TblShrinkMask[ru];// rub 3 bits 0 to 111
