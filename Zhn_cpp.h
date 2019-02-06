@@ -495,7 +495,7 @@ void  ZHOU::GuessFullDigit() {
 		}
 	}
 	// collect perms valid for this digit
-	BF128  tres[100];// to store possible perms 
+	BF128  tres[300];// to store possible perms 
 	int nperms = zh1d_g.Go(FD[digmin][0], tres);
 	for (int i = 0; i < nperms; i++) {
 		ZHOU * mynext = this + 1; // start next guess
