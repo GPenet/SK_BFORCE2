@@ -20,6 +20,7 @@ const extern int TblColumnSingle[512]; // single in column applied to shrinked b
 const extern int TblShrinkSingle[512]; // keep only rows with single
 const extern int TblRowUniq[512]; // 1 is row not defined in block  mode  to 111
 const extern T128 AssignMask_Digit[81];
+const extern T128 zhoustart[19];
 
 
 /*ZH_1D class to solve one digit 3 bands
@@ -52,13 +53,15 @@ struct ZH_GLOBAL2 {
 	int ngiven, digitsbf;// digitsbf to check minimum 8 digits
 	char * zsol,		stdfirstsol[82];
 	char puz[82]; // the solved puzzle 
+	ZH_GLOBAL2() {
+		zsol = 0; // no solution unless required buy the user
+	}
 };
 struct ZH_GLOBAL { // global variables for the core brute force
 
 	int nsol, lim,	single_applied,	go_back,	loop;
-	BF128 init_3x, init_digit, pairs;
+	BF128  pairs;
 
-	ZH_GLOBAL();
 	inline void Init(int maxsols){
 		nsol = go_back=0;
 		lim = maxsols;

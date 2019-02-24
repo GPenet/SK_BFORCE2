@@ -56,14 +56,10 @@ typedef unsigned __int64  uint64_t;
 #else
 #define _popcnt64(a) __builtin_popcountll(a)
 #define _popcnt32(a) __builtin_popcount(a)
-//#define _BitScanForward64(res, src) (*res = __builtin_ctzll(src))
-//#define _BitScanForward(res, src) (*res = __builtin_ctz(src))
-//#define _BitScanReverse64(res, src) (*res = __builtin_clzll(src) ^ 63)
-//#define _BitScanReverse(res, src) (*res = __builtin_clz(src) ^ 31)
-#define bitscanforward64(res, src) (res = __builtin_ctzll(src))
-#define bitscanforward(res, src) (res = __builtin_ctz(src))
-#define bitscanreverse64(res, src) (res = __builtin_clzll(src) ^ 63)
-#define bitscanreverse(res, src) (res = __builtin_clz(src) ^ 31)
+#define bitscanforward64(res, src) (!(uint64_t)(src) ? 0 : ((res = __builtin_ctzll(src)), 1))
+#define bitscanforward(res, src)   (!(uint32_t)(src) ? 0 : ((res = __builtin_ctz(src)), 1))
+#define bitscanreverse64(res, src) (!(uint64_t)(src) ? 0 : ((res = __builtin_clzll(src) ^ 63), 1))
+#define bitscanreverse(res, src)   (!(uint32_t)(src) ? 0 : ((res = __builtin_clz(src) ^ 31), 1))
 //strcpy_s isn't implemented
 #define strcpy_s(dest, size, src) (strncpy(dest, src, size))
 //strncpy_s isn't implemented

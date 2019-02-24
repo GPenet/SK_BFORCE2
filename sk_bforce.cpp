@@ -15,8 +15,6 @@ ofstream  fout1,fout2;
 FINPUT finput;
 
 //========================================
-//const char * zh_g_cpt[10] = { "npuz", "guess", "close_d ", "upd1 ", "upd2 ",
-//"fupd ", "hpair ", "htripl ", " ", " " };
 
 void Go_c10() { // extract valid puzzles from entry
 	int filter = sgo.bfx[0];
@@ -32,7 +30,7 @@ void Go_c10() { // extract valid puzzles from entry
 		int ir = zhou[0].CheckValidityQuick(ze);
 		if ((!filter) && ir == 1)	fout1 << ze << endl;
 		else if((filter &1) && ir==0)fout1 << ze << endl;
-		else if (ir > 1)fout1 << ze << endl;
+		else if ((filter & 2) && ir > 1)fout1 << ze << endl;
 	}
 
 }
@@ -44,12 +42,31 @@ void Go_c11() { // count valid puzzles in entry
 		cerr << "error open file " << sgo.finput_name << endl;
 		return;
 	}
+	int loop = sgo.vx[1], mode = 0;
+	if (loop) {
+		mode = 1;
+		cout << "go for n loop=<<loop" << endl;
+	}
 	uint64_t cc[3] = { 0,0,0 };
 	char ze[200]; ze[81] = 0;
-	while (finput.GetPuzzle(ze)) {
-		int ir=zhou[0].CheckValidityQuick(ze);
-		if (ir < 0 || ir>2) ir = 0;
-		cc[ir]++;
+	switch (mode) {
+	case 0:
+		while (finput.GetPuzzle(ze)) {
+			int ir = zhou[0].CheckValidityQuick(ze);
+			if (ir < 0 || ir>2) ir = 0;
+			cc[ir]++;
+		}
+		break;
+	case 1: {
+		while (finput.GetPuzzle(ze)) {
+			for (int i = 0; i < loop; i++) {
+				int ir = zhou[0].CheckValidityQuick(ze);
+				if (ir < 0 || ir>2) ir = 0;
+				cc[ir]++;
+			}
+		}
+	}
+			break;
 	}
 	cout << "count " << cc[0] << ";" << cc[1] << ";" << cc[2] << endl;
 }
